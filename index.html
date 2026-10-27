@@ -14,10 +14,29 @@
   <style>
     :root { --ink:#36243f; --rose:#ee7187; --lilac:#c7ade9; --cream:#faf0e2; --paper:#fffaf1; }
     * { box-sizing:border-box }
+    [hidden] { display:none !important; }
     body { margin:0; min-height:100svh; overflow-x:hidden; background:var(--cream); color:var(--ink); font-family:'Vazirmatn',sans-serif; }
     body:before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.23; z-index:-1; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E"); }
     .page { min-height:100svh; display:grid; place-items:center; padding:30px 18px 26px; }
     .layout { width:min(100%,760px); text-align:center; position:relative; }
+    .setup { min-height:100svh; display:grid; place-items:center; padding:24px 16px; }
+    .setup-card { width:min(100%,510px); padding:30px 26px; border:2px solid #51405b; border-radius:30px 22px 29px 21px; background:#fff9ec; box-shadow:8px 8px 0 #d9c4f0; text-align:right; }
+    .setup-kicker { display:block; text-align:center; color:#806d82; font-size:12px; margin-bottom:7px; }
+    .setup-card h1 { text-align:center; font-size:clamp(30px,7vw,42px); margin:0 0 5px; }
+    .setup-intro { text-align:center; color:#806d82; font-size:13px; margin:0 0 23px; }
+    .field { display:grid; gap:7px; margin:14px 0; color:#49344f; font-size:13px; font-weight:700; }
+    .field input,.field select { width:100%; min-height:46px; border:1.5px solid #9c84a2; border-radius:13px; padding:9px 12px; background:#fffdf8; color:#382740; font:500 14px 'Vazirmatn',sans-serif; outline:none; }
+    .field input:focus,.field select:focus { border-color:#a53d61; box-shadow:0 0 0 3px #ee718733; }
+    .field-hint { color:#927e91; font-size:11px; font-weight:400; }
+    .setup-button { width:100%; margin-top:8px; background:#f5d6da; }
+    .link-output { display:none; margin-top:20px; padding-top:18px; border-top:1px dashed #b9a6ba; }
+    .link-output.visible { display:block; }
+    .link-output h2 { font-size:18px; margin:0 0 5px; }
+    .link-output p { color:#806d82; font-size:12px; margin:0 0 11px; }
+    .link-box { direction:ltr; width:100%; min-height:42px; border:1px solid #c9b9cf; border-radius:10px; padding:8px; background:#fbf4ff; color:#503d56; font:12px 'Vazirmatn',sans-serif; }
+    .link-actions { display:flex; gap:9px; margin-top:11px; }
+    .link-actions .btn { flex:1; text-align:center; }
+    .link-notice { min-height:20px; text-align:center; color:#6b8d52; font-size:12px; margin:7px 0 0 !important; }
     .eyebrow { display:inline-flex; align-items:center; gap:8px; padding:7px 15px; border:1.5px dashed #735b80; border-radius:99px; font-size:12px; color:#71587d; background:#fff8e9; transform:rotate(-2deg); }
     h1 { font-family:'Gulzar','Vazirmatn',serif; font-weight:400; font-size:clamp(36px,8vw,55px); line-height:1.28; margin:10px 0 0; color:#3f2b4b; }
     .subtitle { font-size:14px; color:#806d82; margin:2px auto 17px; }
@@ -60,7 +79,39 @@
 </head>
 <body>
   <div class="heart-rain" id="heart-rain" aria-hidden="true"></div>
-  <main class="page">
+  <main class="setup" id="setup-view">
+    <section class="setup-card" aria-labelledby="setup-title">
+      <span class="setup-kicker">✿ یه بازی کوچولوی دونفره ✿</span>
+      <h1 id="setup-title">یه قرار مخصوص بساز 💗</h1>
+      <p class="setup-intro">مشخصات رو وارد کن تا لینک اختصاصی قرارمون آماده بشه.</p>
+      <form id="custom-form" novalidate>
+        <label class="field" for="partner-name">اسم پارتنرت
+          <input id="partner-name" name="partner" type="text" maxlength="50" placeholder="مثلاً حامی" autocomplete="off" required />
+        </label>
+        <label class="field" for="desired-choice">آیتمی که می‌خوای انتخاب بشه
+          <select id="desired-choice" name="choice" required>
+            <option value="" selected disabled>یه گزینه انتخاب کن…</option>
+          </select>
+        </label>
+        <label class="field" for="partner-telegram">آیدی تلگرام پارتنرت
+          <input id="partner-telegram" name="telegram" type="text" placeholder="مثلاً @username" autocomplete="off" required />
+          <span class="field-hint">یوزرنیم تلگرامش رو با یا بدون @ وارد کن.</span>
+        </label>
+        <button class="btn setup-button" type="submit">ساخت لینک اختصاصی 💌</button>
+      </form>
+      <div class="link-output" id="link-output" aria-live="polite">
+        <h2>لینکت آماده‌ست 💗</h2>
+        <p>می‌تونی کپی‌اش کنی یا مستقیم توی تلگرام براش بفرستی.</p>
+        <input class="link-box" id="custom-link" type="text" readonly aria-label="لینک اختصاصی" />
+        <div class="link-actions">
+          <button class="btn" id="copy-link" type="button">کپی لینک</button>
+          <a class="btn secondary" id="send-link" href="#" target="_blank" rel="noopener noreferrer">ارسال به عشقم 💗</a>
+        </div>
+        <p class="link-notice" id="link-notice" role="status"></p>
+      </div>
+    </section>
+  </main>
+  <main class="page" id="game-view" hidden>
     <section class="layout" aria-labelledby="title">
       <div class="eyebrow"><span>✿</span> یه بازی کوچولوی دونفره <span>✿</span></div>
       <h1 id="title">امروز با هم چی کار کنیم؟</h1>
@@ -101,6 +152,29 @@
       {label:'خرید گل', icon:'💐'}, {label:'صبحونه توی تخت', icon:'🥐'},
       {label:'رفتن به خرید', icon:'🛍️'}
     ];
+    const setupView=document.querySelector('#setup-view'), gameView=document.querySelector('#game-view'), choiceSelect=document.querySelector('#desired-choice');
+    choices.forEach((choice,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=`${choice.icon} ${choice.label}`;choiceSelect.append(option)});
+    const pageParams=new URLSearchParams(location.search), partnerName=(pageParams.get('partner')||'').trim().slice(0,50), choiceParam=pageParams.get('choice'), requestedChoice=Number(choiceParam), partnerTelegram=(pageParams.get('tg')||'').trim().replace(/^@/,''), hasCustomLink=Boolean(partnerName)&&choiceParam!==null&&choiceParam!==''&&Number.isInteger(requestedChoice)&&requestedChoice>=0&&requestedChoice<choices.length;
+    setupView.hidden=hasCustomLink;gameView.hidden=!hasCustomLink;
+    if(hasCustomLink)document.querySelector('#title').textContent=`امروز با ${partnerName} چی کار کنیم؟`;
+    const customForm=document.querySelector('#custom-form'), linkOutput=document.querySelector('#link-output'), customLink=document.querySelector('#custom-link'), linkNotice=document.querySelector('#link-notice'), sendLink=document.querySelector('#send-link');
+    function telegramUsername(value){return value.trim().replace(/^(https?:\/\/)?(www\.)?t\.me\//i,'').replace(/^@/,'').split(/[/?#]/)[0]}
+    function telegramDraft(username,message){return `https://t.me/${username}?text=${encodeURIComponent(message)}`}
+    customForm.addEventListener('submit',event=>{
+      event.preventDefault();
+      const name=document.querySelector('#partner-name').value.trim(), username=telegramUsername(document.querySelector('#partner-telegram').value), selected=choiceSelect.value;
+      if(!name||selected===''){linkNotice.textContent='اسم پارتنر و آیتم دلخواهت رو وارد کن.';linkOutput.classList.add('visible');return}
+      if(!/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(username)){linkNotice.textContent='آیدی تلگرام رو درست وارد کن؛ مثل @username.';linkOutput.classList.add('visible');return}
+      const link=new URL('https://nadiamohamdian.github.io/dating/');link.searchParams.set('partner',name);link.searchParams.set('choice',selected);link.searchParams.set('tg',username);
+      customLink.value=link.href;
+      sendLink.href=telegramDraft(username,`یه قرار مخصوص برات ساختم، ${name} 💗 انتخابمون: ${choices[Number(selected)].label} ${choices[Number(selected)].icon}\n${link.href}`);
+      linkNotice.textContent='';linkOutput.classList.add('visible');
+    });
+    document.querySelector('#copy-link').addEventListener('click',async()=>{
+      if(!customLink.value)return;
+      try{await navigator.clipboard.writeText(customLink.value)}catch{customLink.focus();customLink.select();document.execCommand('copy')}
+      linkNotice.textContent='لینک کپی شد؛ حالا براش بفرستش 💌';
+    });
     const svgNS='http://www.w3.org/2000/svg', wheel=document.querySelector('#wheel-art'), bulbs=document.querySelector('#bulbs');
     const cx=300, cy=300, radius=258, step=360/choices.length, colors=['#f27c91','#c2b0e9','#b3cc91','#f3b080','#ee8695','#b9d49a','#eda1a8','#c7afe8','#f6a878','#c1b8e6','#efb9ce'];
     const point=(r,a)=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)];
@@ -112,8 +186,8 @@
       const [tx,ty]=point(135,mid); const label=document.createElementNS(svgNS,'text'); label.setAttribute('x',tx);label.setAttribute('y',ty+5);label.setAttribute('text-anchor','middle');label.setAttribute('font-family','Vazirmatn,sans-serif');label.setAttribute('font-size','12');label.setAttribute('font-weight','700');label.setAttribute('fill','#35243e');label.textContent=item.label;wheel.append(label);
     });
     for(let i=0;i<40;i++){const a=i*Math.PI*2/40, x=300+276*Math.cos(a),y=300+276*Math.sin(a);const c=document.createElementNS(svgNS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',i%5===0?'4':'3');c.setAttribute('fill',i%5===0?'#fff2d9':'#cbbbd3');bulbs.append(c)}
-    const shoppingIndex=choices.findIndex(choice=>choice.label==='رفتن به خرید');
-    let rotation=(360-(shoppingIndex*step+step/2)%360)%360,busy=false;
+    const shoppingIndex=choices.findIndex(choice=>choice.label==='رفتن به خرید'), selectedIndex=hasCustomLink?requestedChoice:shoppingIndex;
+    let rotation=(360-(selectedIndex*step+step/2)%360)%360,busy=false;
     wheel.style.transform=`rotate(${rotation}deg)`;
     const result=document.querySelector('#result'), resultTitle=document.querySelector('#result-title');
     const again=document.querySelector('#again'), actions=again.parentElement, note=document.querySelector('.note'), chaseMessages=['خب بریمم پسسس','نکن عشقم','اینو نزن خب عههه','نکننن میگممم','حامییی عههه','مسخره نشو'];
@@ -126,12 +200,13 @@
       again.style.left=`${left}px`;again.style.top=`${top}px`;again.style.width=`${width}px`;again.style.height=`${height}px`;again.style.fontSize=`${Math.max(8,13-chaseStep*.7)}px`;
     }
     function chaseAgain(){if(chaseFinished||chaseStep>=chaseMessages.length)return;chaseStep++;again.textContent=chaseMessages[chaseStep-1];note.append(again);again.classList.add('chasing');moveAgain();if(chaseStep===chaseMessages.length){chaseFinished=true;result.classList.add('sealed');setTimeout(()=>{again.classList.add('vanishing');setTimeout(()=>again.remove(),500)},1400)}}
-    function spin(){if(busy)return;resetAgain();busy=true;result.classList.remove('open');const index=shoppingIndex, extra=(5+Math.floor(Math.random()*3))*360, destination=(360-(index*step+step/2)%360)%360, offset=(destination-((rotation%360)+360)%360+360)%360;rotation+=extra+offset;wheel.style.transform=`rotate(${rotation}deg)`;setTimeout(()=>{resultTitle.textContent=`${choices[index].label} دوتایی!`;result.classList.add('open');busy=false},5300)}
+    function spin(){if(busy)return;resetAgain();busy=true;result.classList.remove('open');const index=selectedIndex, extra=(5+Math.floor(Math.random()*3))*360, destination=(360-(index*step+step/2)%360)%360, offset=(destination-((rotation%360)+360)%360+360)%360;rotation+=extra+offset;wheel.style.transform=`rotate(${rotation}deg)`;setTimeout(()=>{resultTitle.textContent=`${choices[index].label} دوتایی!`;result.classList.add('open');busy=false},5300)}
     document.querySelector('#wheel').addEventListener('click',spin);again.addEventListener('click',chaseAgain);
     result.addEventListener('click',e=>{if(e.target===result&&!chaseFinished){resetAgain();result.classList.remove('open')}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!chaseFinished){resetAgain();result.classList.remove('open')}});
     const share=document.querySelector('#share');
     const siteLink=/^https?:$/.test(location.protocol)?`\n${location.href}`:'';
-    share.href=`https://t.me/Hamirasekh?text=${encodeURIComponent(`یه سورپرایز کوچولو دارم برات 💗 قرارمون اینه که باهم بریم خرید 🛍️${siteLink}`)}`;share.target='_blank';share.rel='noopener noreferrer';
+    const message=hasCustomLink?`یه قرار مخصوص برات ساختم، ${partnerName} 💗 انتخابمون: ${choices[selectedIndex].label} ${choices[selectedIndex].icon}${siteLink}`:`یه سورپرایز کوچولو دارم برات 💗 قرارمون اینه که باهم بریم خرید 🛍️${siteLink}`;
+    share.href=telegramUsername?telegramDraft(telegramUsername,message):`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(message)}`;share.target='_blank';share.rel='noopener noreferrer';
     const heartRain=document.querySelector('#heart-rain'), heartGlyphs=['💗','💖','💕','💞','✨'];
     function dropHeart(){const heart=document.createElement('span');heart.className='falling-heart';heart.textContent=heartGlyphs[Math.floor(Math.random()*heartGlyphs.length)];heart.style.setProperty('--left',`${Math.random()*100}%`);heart.style.setProperty('--size',`${15+Math.random()*18}px`);heart.style.setProperty('--duration',`${5+Math.random()*4}s`);heart.style.setProperty('--drift',`${Math.random()*100-50}px`);heartRain.append(heart);heart.addEventListener('animationend',()=>heart.remove(),{once:true})}
     for(let i=0;i<12;i++)setTimeout(dropHeart,i*170);setInterval(dropHeart,650);

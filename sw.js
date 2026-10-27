@@ -1,4 +1,4 @@
-const CACHE = 'dating-wheel-v2';
+const CACHE = 'dating-wheel-v3';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE)));
