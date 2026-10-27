@@ -215,7 +215,7 @@
     let lastSelectedIndex=selectedIndex, rotation=0,busy=false;
     wheel.style.transform=`rotate(${rotation}deg)`;
     const result=document.querySelector('#result'), resultTitle=document.querySelector('#result-title');
-    const again=document.querySelector('#again'), actions=again.parentElement, note=document.querySelector('.note'), chaseMessages=['خب بریمم پسسس','نکن عشقم','اینو نزن خب عههه','نکننن میگممم','حامییی عههه','مسخره نشو'];
+    const again=document.querySelector('#again'), actions=again.parentElement, note=document.querySelector('.note'), chaseMessages=['خب بریمم پسسس','نکن عشقم','اینو نزن خب عههه','نکننن میگمم',partnerName?`${partnerName}ییی عههه`:'عشقم عههه','مسخره نشو'];
     let chaseStep=0,chaseFinished=false;
     function resetAgain(){chaseStep=0;chaseFinished=false;again.textContent='یه بار دیگه بچرخون';again.hidden=false;again.classList.remove('chasing','vanishing');again.removeAttribute('style');if(again.parentElement!==actions)actions.insertBefore(again,actions.firstChild);result.classList.remove('sealed')}
     function moveAgain(){
@@ -230,7 +230,7 @@
     result.addEventListener('click',e=>{if(e.target===result&&!chaseFinished){resetAgain();result.classList.remove('open')}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!chaseFinished){resetAgain();result.classList.remove('open')}});
     const share=document.querySelector('#share');
     const siteLink=/^https?:$/.test(location.protocol)?`\n${location.href}`:'';
-    function updateShareLink(){const pickText=isRandomPick?`این بار شانس برامون انتخاب کرد: ${choices[lastSelectedIndex].label} ${choices[lastSelectedIndex].icon}`:`انتخابمون: ${choices[selectedIndex].label} ${choices[selectedIndex].icon}`,message=hasCustomLink?`یه قرار مخصوص برات ساختم، ${partnerName} 💗 ${pickText}${siteLink}`:`یه سورپرایز کوچولو دارم برات 💗 قرارمون اینه که باهم بریم خرید 🛍️${siteLink}`;share.href=telegramUsername?telegramDraft(telegramUsername,message):`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(message)}`}
+    function updateShareLink(){const pickText=isRandomPick?`این بار شانس برامون انتخاب کرد: ${choices[lastSelectedIndex].label} ${choices[lastSelectedIndex].icon}`:`انتخابمون: ${choices[selectedIndex].label} ${choices[selectedIndex].icon}`,message=hasCustomLink?`یه قرار مخصوص برات ساختم، ${partnerName} 💗 ${pickText}${siteLink}`:`یه سورپرایز کوچولو دارم برات 💗 قرارمون اینه که باهم بریم خرید 🛍️${siteLink}`;share.href=partnerTelegram?telegramDraft(partnerTelegram,message):`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(message)}`}
     updateShareLink();share.target='_blank';share.rel='noopener noreferrer';
     const heartRain=document.querySelector('#heart-rain'), heartGlyphs=['💗','💖','💕','💞','✨'];
     function dropHeart(){const heart=document.createElement('span');heart.className='falling-heart';heart.textContent=heartGlyphs[Math.floor(Math.random()*heartGlyphs.length)];heart.style.setProperty('--left',`${Math.random()*100}%`);heart.style.setProperty('--size',`${15+Math.random()*18}px`);heart.style.setProperty('--duration',`${5+Math.random()*4}s`);heart.style.setProperty('--drift',`${Math.random()*100-50}px`);heartRain.append(heart);heart.addEventListener('animationend',()=>heart.remove(),{once:true})}
