@@ -28,6 +28,13 @@
     .field input,.field select { width:100%; min-height:46px; border:1.5px solid #9c84a2; border-radius:13px; padding:9px 12px; background:#fffdf8; color:#382740; font:500 14px 'Vazirmatn',sans-serif; outline:none; }
     .field input:focus,.field select:focus { border-color:#a53d61; box-shadow:0 0 0 3px #ee718733; }
     .field-hint { color:#927e91; font-size:11px; font-weight:400; }
+    .custom-options { margin:16px 0; padding:11px 13px; border:1px dashed #b9a6ba; border-radius:14px; background:#fffdf8; }
+    .custom-options summary { color:#59445f; font-size:13px; font-weight:700; cursor:pointer; }
+    .custom-options > p { margin:8px 0 10px; color:#927e91; font-size:11px; }
+    .choice-editors { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .choice-editor { min-width:0; display:grid; gap:4px; color:#725f78; font-size:10px; }
+    .choice-editor input { width:100%; min-height:36px; border:1px solid #c9b9cf; border-radius:9px; padding:6px 8px; background:#fff; color:#382740; font:12px 'Vazirmatn',sans-serif; }
+    @media(max-width:520px) { .choice-editors{grid-template-columns:1fr} }
     .setup-button { width:100%; margin-top:8px; background:#f5d6da; }
     .link-output { display:none; margin-top:20px; padding-top:18px; border-top:1px dashed #b9a6ba; }
     .link-output.visible { display:block; }
@@ -93,6 +100,11 @@
             <option value="" selected disabled>یه گزینه انتخاب کن…</option>
           </select>
         </label>
+        <details class="custom-options">
+          <summary>ویرایش متن آیتم‌های گردونه (اختیاری)</summary>
+          <p>هر آیتمی رو خواستی با جمله یا عبارت خودت جایگزین کن.</p>
+          <div class="choice-editors" id="choice-editors"></div>
+        </details>
         <label class="field" for="partner-telegram">آیدی تلگرام پارتنرت
           <input id="partner-telegram" name="telegram" type="text" placeholder="مثلاً @username" autocomplete="off" required />
           <span class="field-hint">یوزرنیم تلگرامش رو با یا بدون @ وارد کن.</span>
@@ -152,11 +164,20 @@
       {label:'خرید گل', icon:'💐'}, {label:'صبحونه توی تخت', icon:'🥐'},
       {label:'رفتن به خرید', icon:'🛍️'}
     ];
-    const setupView=document.querySelector('#setup-view'), gameView=document.querySelector('#game-view'), choiceSelect=document.querySelector('#desired-choice');
-    choices.forEach((choice,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=`${choice.icon} ${choice.label}`;choiceSelect.append(option)});
-    const pageParams=new URLSearchParams(location.search), partnerName=(pageParams.get('partner')||'').trim().slice(0,50), choiceParam=pageParams.get('choice'), requestedChoice=Number(choiceParam), partnerTelegram=(pageParams.get('tg')||'').trim().replace(/^@/,''), hasCustomLink=Boolean(partnerName)&&choiceParam!==null&&choiceParam!==''&&Number.isInteger(requestedChoice)&&requestedChoice>=0&&requestedChoice<choices.length;
+    const setupView=document.querySelector('#setup-view'), gameView=document.querySelector('#game-view'), choiceSelect=document.querySelector('#desired-choice'), editorList=document.querySelector('#choice-editors');
+    const pageParams=new URLSearchParams(location.search), partnerName=(pageParams.get('partner')||'').trim().slice(0,50), choiceParam=pageParams.get('choice'), randomSelection=choiceParam==='random', requestedChoice=randomSelection?-1:Number(choiceParam), partnerTelegram=(pageParams.get('tg')||'').trim().replace(/^@/,''), customItemParam=pageParams.get('items');
+    if(customItemParam){try{const labels=JSON.parse(customItemParam);if(Array.isArray(labels))labels.forEach((label,index)=>{if(typeof label==='string'&&choices[index]&&label.trim())choices[index].label=label.trim().slice(0,60)})}catch{}}
+    const hasCustomLink=Boolean(partnerName)&&choiceParam!==null&&(randomSelection||(Number.isInteger(requestedChoice)&&requestedChoice>=0&&requestedChoice<choices.length)), isRandomPick=hasCustomLink&&randomSelection, defaultChoiceLabels=choices.map(choice=>choice.label);
+    const randomOption=document.createElement('option');randomOption.value='random';randomOption.textContent='🎲 واقعاً رندوم باشه';choiceSelect.append(randomOption);
+    choices.forEach((choice,index)=>{
+      const option=document.createElement('option');option.value=String(index);option.textContent=`${choice.icon} ${choice.label}`;choiceSelect.append(option);
+      const editorLabel=document.createElement('label');editorLabel.className='choice-editor';editorLabel.textContent=`${choice.icon} ${defaultChoiceLabels[index]}`;
+      const editor=document.createElement('input');editor.type='text';editor.maxLength=60;editor.value=choice.label;editor.setAttribute('aria-label',`متن آیتم ${defaultChoiceLabels[index]}`);
+      editor.addEventListener('input',()=>{choice.label=editor.value.trim()||defaultChoiceLabels[index];option.textContent=`${choice.icon} ${choice.label}`;editorLabel.firstChild.textContent=`${choice.icon} ${defaultChoiceLabels[index]}`});
+      editorLabel.append(editor);editorList.append(editorLabel);
+    });
     setupView.hidden=hasCustomLink;gameView.hidden=!hasCustomLink;
-    if(hasCustomLink)document.querySelector('#title').textContent=`امروز با ${partnerName} چی کار کنیم؟`;
+    if(hasCustomLink){document.querySelector('#title').textContent=`امروز با ${partnerName} چی کار کنیم؟`;document.querySelector('.subtitle').textContent=isRandomPick?'این بار انتخاب رو می‌سپاریم به شانس! 🎲':`این بار روی «${choices[requestedChoice].label}» می‌ایسته 💗`}
     const customForm=document.querySelector('#custom-form'), linkOutput=document.querySelector('#link-output'), customLink=document.querySelector('#custom-link'), linkNotice=document.querySelector('#link-notice'), sendLink=document.querySelector('#send-link');
     function telegramUsername(value){return value.trim().replace(/^(https?:\/\/)?(www\.)?t\.me\//i,'').replace(/^@/,'').split(/[/?#]/)[0]}
     function telegramDraft(username,message){return `https://t.me/${username}?text=${encodeURIComponent(message)}`}
@@ -165,9 +186,10 @@
       const name=document.querySelector('#partner-name').value.trim(), username=telegramUsername(document.querySelector('#partner-telegram').value), selected=choiceSelect.value;
       if(!name||selected===''){linkNotice.textContent='اسم پارتنر و آیتم دلخواهت رو وارد کن.';linkOutput.classList.add('visible');return}
       if(!/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(username)){linkNotice.textContent='آیدی تلگرام رو درست وارد کن؛ مثل @username.';linkOutput.classList.add('visible');return}
-      const link=new URL('https://nadiamohamdian.github.io/dating/');link.searchParams.set('partner',name);link.searchParams.set('choice',selected);link.searchParams.set('tg',username);
+      const itemTexts=choices.map((choice,index)=>choice.label.trim().slice(0,60)||defaultChoiceLabels[index]), link=new URL('https://nadiamohamdian.github.io/dating/');link.searchParams.set('partner',name);link.searchParams.set('choice',selected);link.searchParams.set('tg',username);link.searchParams.set('items',JSON.stringify(itemTexts));
       customLink.value=link.href;
-      sendLink.href=telegramDraft(username,`یه قرار مخصوص برات ساختم، ${name} 💗 انتخابمون: ${choices[Number(selected)].label} ${choices[Number(selected)].icon}\n${link.href}`);
+      const pickText=selected==='random'?'این بار انتخاب رو می‌سپاریم به شانس 🎲':`انتخابمون: ${choices[Number(selected)].label} ${choices[Number(selected)].icon}`;
+      sendLink.href=telegramDraft(username,`یه قرار مخصوص برات ساختم، ${name} 💗 ${pickText}\n${link.href}`);
       linkNotice.textContent='';linkOutput.classList.add('visible');
     });
     document.querySelector('#copy-link').addEventListener('click',async()=>{
@@ -183,11 +205,11 @@
       const path=document.createElementNS(svgNS,'path'); path.setAttribute('d',`M ${cx} ${cy} L ${p0[0]} ${p0[1]} A ${radius} ${radius} 0 0 1 ${p1[0]} ${p1[1]} Z`); path.setAttribute('fill',colors[i]); path.setAttribute('stroke','#382740'); path.setAttribute('stroke-width','4'); wheel.append(path);
       const [ix,iy]=point(196,mid); const circ=document.createElementNS(svgNS,'circle'); circ.setAttribute('cx',ix);circ.setAttribute('cy',iy);circ.setAttribute('r','25');circ.setAttribute('fill','#fff5e8');circ.setAttribute('stroke','#49364d');circ.setAttribute('stroke-width','3');wheel.append(circ);
       const icon=document.createElementNS(svgNS,'text'); icon.setAttribute('x',ix);icon.setAttribute('y',iy+8);icon.setAttribute('text-anchor','middle');icon.setAttribute('font-size','24');icon.textContent=item.icon;wheel.append(icon);
-      const [tx,ty]=point(135,mid); const label=document.createElementNS(svgNS,'text'); label.setAttribute('x',tx);label.setAttribute('y',ty+5);label.setAttribute('text-anchor','middle');label.setAttribute('font-family','Vazirmatn,sans-serif');label.setAttribute('font-size','12');label.setAttribute('font-weight','700');label.setAttribute('fill','#35243e');label.textContent=item.label;wheel.append(label);
+      const [tx,ty]=point(135,mid); const label=document.createElementNS(svgNS,'text'), labelChars=Array.from(item.label); label.setAttribute('x',tx);label.setAttribute('y',ty+5);label.setAttribute('text-anchor','middle');label.setAttribute('font-family','Vazirmatn,sans-serif');label.setAttribute('font-size',labelChars.length>14?'10':'12');label.setAttribute('font-weight','700');label.setAttribute('fill','#35243e');label.textContent=labelChars.length>16?`${labelChars.slice(0,16).join('')}…`:item.label;const title=document.createElementNS(svgNS,'title');title.textContent=item.label;label.append(title);wheel.append(label);
     });
     for(let i=0;i<40;i++){const a=i*Math.PI*2/40, x=300+276*Math.cos(a),y=300+276*Math.sin(a);const c=document.createElementNS(svgNS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',i%5===0?'4':'3');c.setAttribute('fill',i%5===0?'#fff2d9':'#cbbbd3');bulbs.append(c)}
-    const shoppingIndex=choices.findIndex(choice=>choice.label==='رفتن به خرید'), selectedIndex=hasCustomLink?requestedChoice:shoppingIndex;
-    let rotation=(360-(selectedIndex*step+step/2)%360)%360,busy=false;
+    const shoppingIndex=choices.findIndex(choice=>choice.label==='رفتن به خرید'), selectedIndex=isRandomPick?Math.floor(Math.random()*choices.length):hasCustomLink?requestedChoice:shoppingIndex;
+    let lastSelectedIndex=selectedIndex, rotation=(360-(selectedIndex*step+step/2)%360+360)%360,busy=false;
     wheel.style.transform=`rotate(${rotation}deg)`;
     const result=document.querySelector('#result'), resultTitle=document.querySelector('#result-title');
     const again=document.querySelector('#again'), actions=again.parentElement, note=document.querySelector('.note'), chaseMessages=['خب بریمم پسسس','نکن عشقم','اینو نزن خب عههه','نکننن میگممم','حامییی عههه','مسخره نشو'];
@@ -200,17 +222,17 @@
       again.style.left=`${left}px`;again.style.top=`${top}px`;again.style.width=`${width}px`;again.style.height=`${height}px`;again.style.fontSize=`${Math.max(8,13-chaseStep*.7)}px`;
     }
     function chaseAgain(){if(chaseFinished||chaseStep>=chaseMessages.length)return;chaseStep++;again.textContent=chaseMessages[chaseStep-1];note.append(again);again.classList.add('chasing');moveAgain();if(chaseStep===chaseMessages.length){chaseFinished=true;result.classList.add('sealed');setTimeout(()=>{again.classList.add('vanishing');setTimeout(()=>again.remove(),500)},1400)}}
-    function spin(){if(busy)return;resetAgain();busy=true;result.classList.remove('open');const index=selectedIndex, extra=(5+Math.floor(Math.random()*3))*360, destination=(360-(index*step+step/2)%360)%360, offset=(destination-((rotation%360)+360)%360+360)%360;rotation+=extra+offset;wheel.style.transform=`rotate(${rotation}deg)`;setTimeout(()=>{resultTitle.textContent=`${choices[index].label} دوتایی!`;result.classList.add('open');busy=false},5300)}
+    function spin(){if(busy)return;resetAgain();busy=true;result.classList.remove('open');const index=isRandomPick?Math.floor(Math.random()*choices.length):selectedIndex;lastSelectedIndex=index;const extra=(5+Math.floor(Math.random()*3))*360, destination=(360-(index*step+step/2)%360+360)%360, offset=(destination-((rotation%360)+360)%360+360)%360;rotation+=extra+offset;wheel.style.transform=`rotate(${rotation}deg)`;setTimeout(()=>{resultTitle.textContent=`${choices[index].label} دوتایی!`;result.classList.add('open');busy=false},5300)}
     document.querySelector('#wheel').addEventListener('click',spin);again.addEventListener('click',chaseAgain);
     result.addEventListener('click',e=>{if(e.target===result&&!chaseFinished){resetAgain();result.classList.remove('open')}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!chaseFinished){resetAgain();result.classList.remove('open')}});
     const share=document.querySelector('#share');
     const siteLink=/^https?:$/.test(location.protocol)?`\n${location.href}`:'';
-    const message=hasCustomLink?`یه قرار مخصوص برات ساختم، ${partnerName} 💗 انتخابمون: ${choices[selectedIndex].label} ${choices[selectedIndex].icon}${siteLink}`:`یه سورپرایز کوچولو دارم برات 💗 قرارمون اینه که باهم بریم خرید 🛍️${siteLink}`;
-    share.href=telegramUsername?telegramDraft(telegramUsername,message):`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(message)}`;share.target='_blank';share.rel='noopener noreferrer';
+    function updateShareLink(){const pickText=isRandomPick?`این بار شانس برامون انتخاب کرد: ${choices[lastSelectedIndex].label} ${choices[lastSelectedIndex].icon}`:`انتخابمون: ${choices[selectedIndex].label} ${choices[selectedIndex].icon}`,message=hasCustomLink?`یه قرار مخصوص برات ساختم، ${partnerName} 💗 ${pickText}${siteLink}`:`یه سورپرایز کوچولو دارم برات 💗 قرارمون اینه که باهم بریم خرید 🛍️${siteLink}`;share.href=telegramUsername?telegramDraft(telegramUsername,message):`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(message)}`}
+    updateShareLink();share.target='_blank';share.rel='noopener noreferrer';
     const heartRain=document.querySelector('#heart-rain'), heartGlyphs=['💗','💖','💕','💞','✨'];
     function dropHeart(){const heart=document.createElement('span');heart.className='falling-heart';heart.textContent=heartGlyphs[Math.floor(Math.random()*heartGlyphs.length)];heart.style.setProperty('--left',`${Math.random()*100}%`);heart.style.setProperty('--size',`${15+Math.random()*18}px`);heart.style.setProperty('--duration',`${5+Math.random()*4}s`);heart.style.setProperty('--drift',`${Math.random()*100-50}px`);heartRain.append(heart);heart.addEventListener('animationend',()=>heart.remove(),{once:true})}
     for(let i=0;i<12;i++)setTimeout(dropHeart,i*170);setInterval(dropHeart,650);
-    share.addEventListener('click',()=>{for(let i=0;i<24;i++)setTimeout(dropHeart,i*45)});
+    share.addEventListener('click',()=>{updateShareLink();for(let i=0;i<24;i++)setTimeout(dropHeart,i*45)});
     if('serviceWorker' in navigator && location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
   </script>
 </body>
