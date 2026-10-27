@@ -52,6 +52,8 @@
     .btn { border:1.5px solid var(--ink); border-radius:99px; padding:10px 17px; font:600 13px 'Vazirmatn',sans-serif; text-decoration:none; cursor:pointer; color:var(--ink); background:#f5d6da; box-shadow:2px 3px 0 var(--ink); }
     .btn.secondary { background:#e4d5f5; }
     .btn:active { box-shadow:none; transform:translate(2px,3px); }
+    #again.chasing { position:fixed; z-index:7; display:grid; place-items:center; padding:4px 6px; white-space:normal; line-height:1.15; transition:left .22s ease,top .22s ease,width .22s ease,height .22s ease,font-size .22s ease,opacity .45s ease; }
+    #again.vanishing { opacity:0; pointer-events:none; }
     @media(max-width:520px) { .page{padding:22px 14px 20px}.stage{padding:12px 8px 16px;border-radius:27px}.wheel-wrap{width:100%}.subtitle{margin-bottom:15px}.pin{width:54px;top:-4px}.heart{right:-2%;font-size:25px}.face{font-size:39px} }
     @media (prefers-reduced-motion:reduce) { *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important} }
   </style>
@@ -114,9 +116,19 @@
     let rotation=(360-(shoppingIndex*step+step/2)%360)%360,busy=false;
     wheel.style.transform=`rotate(${rotation}deg)`;
     const result=document.querySelector('#result'), resultTitle=document.querySelector('#result-title');
-    function spin(){if(busy)return;busy=true;result.classList.remove('open');const index=shoppingIndex, extra=(5+Math.floor(Math.random()*3))*360, destination=(360-(index*step+step/2)%360)%360, offset=(destination-((rotation%360)+360)%360+360)%360;rotation+=extra+offset;wheel.style.transform=`rotate(${rotation}deg)`;setTimeout(()=>{resultTitle.textContent=`${choices[index].label} دوتایی!`;result.classList.add('open');busy=false},5300)}
-    document.querySelector('#wheel').addEventListener('click',spin);document.querySelector('#again').addEventListener('click',spin);
-    result.addEventListener('click',e=>{if(e.target===result)result.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')result.classList.remove('open')});
+    const again=document.querySelector('#again'), chaseMessages=['خب بریمم پسسس','نکن عشقم','اینو نزن خب عههه','نکننن میگممم','حامییی عههه','مسخره نشو'];
+    let chaseStep=0,chaseFinished=false;
+    function resetAgain(){chaseStep=0;chaseFinished=false;again.textContent='یه بار دیگه بچرخون';again.hidden=false;again.classList.remove('chasing','vanishing');again.removeAttribute('style');result.classList.remove('sealed')}
+    function moveAgain(){
+      const width=Math.max(66,155-chaseStep*15),height=Math.max(25,44-chaseStep*3),pad=12,maxLeft=Math.max(pad,innerWidth-width-pad),maxTop=Math.max(pad,innerHeight-height-pad);
+      const spots=[[pad,pad],[maxLeft,pad],[pad,maxTop],[maxLeft,maxTop],[Math.round(maxLeft*.5),pad],[Math.round(maxLeft*.5),maxTop]];
+      const [left,top]=spots[(chaseStep-1)%spots.length];
+      again.style.left=`${left}px`;again.style.top=`${top}px`;again.style.width=`${width}px`;again.style.height=`${height}px`;again.style.fontSize=`${Math.max(8,13-chaseStep*.7)}px`;
+    }
+    function chaseAgain(){if(chaseFinished||chaseStep>=chaseMessages.length)return;chaseStep++;again.textContent=chaseMessages[chaseStep-1];again.classList.add('chasing');moveAgain();if(chaseStep===chaseMessages.length){chaseFinished=true;result.classList.add('sealed');setTimeout(()=>{again.classList.add('vanishing');setTimeout(()=>again.remove(),500)},1400)}}
+    function spin(){if(busy)return;resetAgain();busy=true;result.classList.remove('open');const index=shoppingIndex, extra=(5+Math.floor(Math.random()*3))*360, destination=(360-(index*step+step/2)%360)%360, offset=(destination-((rotation%360)+360)%360+360)%360;rotation+=extra+offset;wheel.style.transform=`rotate(${rotation}deg)`;setTimeout(()=>{resultTitle.textContent=`${choices[index].label} دوتایی!`;result.classList.add('open');busy=false},5300)}
+    document.querySelector('#wheel').addEventListener('click',spin);again.addEventListener('click',chaseAgain);
+    result.addEventListener('click',e=>{if(e.target===result&&!chaseFinished){resetAgain();result.classList.remove('open')}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!chaseFinished){resetAgain();result.classList.remove('open')}});
     const share=document.querySelector('#share');
     const siteLink=/^https?:$/.test(location.protocol)?`\n${location.href}`:'';
     share.href=`https://t.me/Hamirasekh?text=${encodeURIComponent(`یه سورپرایز کوچولو دارم برات 💗 قرارمون اینه که باهم بریم خرید 🛍️${siteLink}`)}`;share.target='_blank';share.rel='noopener noreferrer';
