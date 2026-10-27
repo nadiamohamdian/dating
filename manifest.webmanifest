@@ -1,0 +1,15 @@
+{
+  "name": "dating-wheel",
+  "short_name": "قرار دونفره",
+  "description": "گردونه‌ی کوچولوی یک قرار دونفره",
+  "lang": "fa-IR",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#faf0e2",
+  "theme_color": "#faf0e2",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

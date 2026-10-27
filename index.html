@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f8efe0" />
+  <meta name="description" content="یه گردونه‌ی بامزه برای انتخاب قرار بعدی ما دوتا." />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <title>یه قرار دونفره 💗</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gulzar&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#36243f; --rose:#ee7187; --lilac:#c7ade9; --cream:#faf0e2; --paper:#fffaf1; }
+    * { box-sizing:border-box }
+    body { margin:0; min-height:100svh; overflow-x:hidden; background:var(--cream); color:var(--ink); font-family:'Vazirmatn',sans-serif; }
+    body:before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.23; z-index:-1; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E"); }
+    .page { min-height:100svh; display:grid; place-items:center; padding:30px 18px 26px; }
+    .layout { width:min(100%,760px); text-align:center; position:relative; }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; padding:7px 15px; border:1.5px dashed #735b80; border-radius:99px; font-size:12px; color:#71587d; background:#fff8e9; transform:rotate(-2deg); }
+    h1 { font-family:'Gulzar','Vazirmatn',serif; font-weight:400; font-size:clamp(36px,8vw,55px); line-height:1.28; margin:10px 0 0; color:#3f2b4b; }
+    .subtitle { font-size:14px; color:#806d82; margin:2px auto 17px; }
+    .stage { width:min(100%,550px); margin:0 auto; position:relative; padding:15px 12px 19px; border:2px solid #51405b; border-radius:34px 25px 31px 23px; background:#d9c4f0; box-shadow:7px 8px 0 #4a374f; transform:rotate(.35deg); }
+    .stage:before { content:""; position:absolute; inset:9px; border:1.5px dotted #7b6583; border-radius:27px 19px 25px 18px; pointer-events:none; }
+    .wheel-wrap { width:min(100%,475px); margin:auto; position:relative; aspect-ratio:1; filter:drop-shadow(1px 4px 0 #413044); }
+    #wheel { width:100%; height:100%; overflow:visible; }
+    #wheel-art { transform-box:view-box; transform-origin:50% 50%; transition:transform 5.2s cubic-bezier(.11,.72,.13,1); }
+    .pin { position:absolute; top:-6px; left:50%; z-index:3; width:64px; transform:translateX(-50%) rotate(-3deg); filter:drop-shadow(2px 3px 0 #47364e); }
+    .spin-center { cursor:pointer; font-family:'Vazirmatn',sans-serif; font-weight:800; font-size:20px; fill:#382740; }
+    .spin-center:hover { fill:#a53d61; }
+    .decor { position:absolute; font-size:31px; z-index:2; filter:drop-shadow(1px 2px #544259); animation:bob 3s ease-in-out infinite; }
+    .heart { top:27%; right:-1%; transform:rotate(12deg); }
+    .star { top:8%; left:4%; font-size:29px; animation-delay:.5s; }
+    .face { bottom:5%; left:5%; font-size:46px; animation-delay:1s; }
+    .flower { top:14%; right:5%; font-size:25px; animation-delay:1.3s; }
+    @keyframes bob { 0%,100%{translate:0 0} 50%{translate:0 -7px} }
+    .hint { margin:18px 0 0; font-size:13px; color:#725f78; }
+    .hint strong { color:#49344f; }
+    .tries { margin-top:8px; font-size:11px; color:#9a8297; }
+    .heart-rain { position:fixed; inset:0; z-index:4; overflow:hidden; pointer-events:none; }
+    .falling-heart { position:absolute; top:-48px; left:var(--left); font-size:var(--size); opacity:.92; filter:drop-shadow(1px 2px 1px #8b526344); animation:heart-fall var(--duration) linear forwards; }
+    @keyframes heart-fall { to { transform:translate3d(var(--drift),110vh,0) rotate(360deg); opacity:.12; } }
+    .result { position:fixed; inset:0; z-index:5; display:grid; place-items:center; padding:20px; background:#37273ebd; opacity:0; pointer-events:none; transition:opacity .25s; }
+    .result.open { opacity:1; pointer-events:auto; }
+    .note { width:min(100%,390px); background:#fff9ec; border:2px solid var(--ink); border-radius:28px 20px 29px 21px; box-shadow:8px 8px 0 #e9788c; padding:28px 24px 24px; transform:rotate(-1deg) scale(.92); transition:transform .25s; position:relative; }
+    .open .note { transform:rotate(-1deg) scale(1); }
+    .note .top { font-size:38px; margin:0; }
+    .note h2 { font-family:'Gulzar','Vazirmatn',serif; font-weight:400; font-size:31px; line-height:1.5; margin:8px 0; }
+    .note p { color:#816d7f; font-size:13px; margin:0 0 17px; }
+    .actions { display:flex; gap:9px; justify-content:center; flex-wrap:wrap; }
+    .btn { border:1.5px solid var(--ink); border-radius:99px; padding:10px 17px; font:600 13px 'Vazirmatn',sans-serif; text-decoration:none; cursor:pointer; color:var(--ink); background:#f5d6da; box-shadow:2px 3px 0 var(--ink); }
+    .btn.secondary { background:#e4d5f5; }
+    .btn:active { box-shadow:none; transform:translate(2px,3px); }
+    @media(max-width:520px) { .page{padding:22px 14px 20px}.stage{padding:12px 8px 16px;border-radius:27px}.wheel-wrap{width:100%}.subtitle{margin-bottom:15px}.pin{width:54px;top:-4px}.heart{right:-2%;font-size:25px}.face{font-size:39px} }
+    @media (prefers-reduced-motion:reduce) { *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important} }
+  </style>
+</head>
+<body>
+  <div class="heart-rain" id="heart-rain" aria-hidden="true"></div>
+  <main class="page">
+    <section class="layout" aria-labelledby="title">
+      <div class="eyebrow"><span>✿</span> یه بازی کوچولوی دونفره <span>✿</span></div>
+      <h1 id="title">امروز با هم چی کار کنیم؟</h1>
+      <p class="subtitle">هر بار بچرخونیش، آخرش باهم می‌ریم خرید! 🛍️</p>
+      <div class="stage">
+        <span class="decor heart" aria-hidden="true">♡</span><span class="decor star" aria-hidden="true">★</span>
+        <span class="decor face" aria-hidden="true">☻</span><span class="decor flower" aria-hidden="true">✿</span>
+        <div class="wheel-wrap">
+          <svg class="pin" viewBox="0 0 80 100" aria-hidden="true"><path d="M40 4C20 4 8 19 8 39c0 23 32 54 32 54s32-31 32-54C72 19 60 4 40 4Z" fill="#f16f88" stroke="#382740" stroke-width="5" stroke-linejoin="round"/><circle cx="40" cy="38" r="12" fill="#fff1e2" stroke="#382740" stroke-width="4"/><circle cx="40" cy="38" r="4" fill="#e46c84"/></svg>
+          <svg id="wheel" viewBox="0 0 600 600" role="img" aria-label="گردونه‌ی انتخاب قرار دونفره">
+            <circle cx="300" cy="300" r="290" fill="#35243e" stroke="#49334e" stroke-width="5"/>
+            <g id="bulbs"></g>
+            <circle cx="300" cy="300" r="266" fill="#fff4df" stroke="#33263c" stroke-width="4"/>
+            <g id="wheel-art"></g>
+            <circle cx="300" cy="300" r="84" fill="#ea7087" stroke="#382740" stroke-width="7"/>
+            <path d="M248 255c12-22 34-22 52-8 19-14 43-11 53 8 22 3 32 25 22 44 11 20-1 42-20 47-8 22-31 27-51 13-18 14-42 9-51-11-21-4-29-27-17-45-12-19-7-39 12-48Z" fill="none" stroke="#fa9aaa" stroke-width="3" opacity=".8"/>
+            <text x="300" y="306" text-anchor="middle" class="spin-center">بچرخون!</text>
+            <text x="300" y="334" text-anchor="middle" font-size="18" fill="#fff0e5">♡</text>
+          </svg>
+        </div>
+      </div>
+      <p class="hint">برای شروع، وسط گردونه رو <strong>بزن</strong> 💗</p>
+      <p class="tries">هر چرخش یعنی یه خاطره‌ی تازه</p>
+    </section>
+  </main>
+  <div class="result" id="result" role="dialog" aria-modal="true" aria-labelledby="result-title">
+    <div class="note">
+      <p class="top">💌</p><h2 id="result-title"></h2><p>پس قرارمون همینه؟ من که پایه‌م! 🥰</p>
+      <div class="actions"><button class="btn" id="again">یه بار دیگه بچرخون</button><a class="btn secondary" id="share" href="#">ارسال به عشقم 💗</a></div>
+    </div>
+  </div>
+  <script>
+    const choices = [
+      {label:'کافه‌گردی', icon:'☕'}, {label:'پیاده‌روی', icon:'🌷'},
+      {label:'فیلم دیدن', icon:'🍿'}, {label:'بستنی خوردن', icon:'🍦'},
+      {label:'بازی دونفره', icon:'🎲'}, {label:'آشپزی باهم', icon:'🍓'},
+      {label:'عکس دونفره', icon:'📸'}, {label:'پیک‌نیک', icon:'🧺'},
+      {label:'خرید گل', icon:'💐'}, {label:'صبحونه توی تخت', icon:'🥐'},
+      {label:'رفتن به خرید', icon:'🛍️'}
+    ];
+    const svgNS='http://www.w3.org/2000/svg', wheel=document.querySelector('#wheel-art'), bulbs=document.querySelector('#bulbs');
+    const cx=300, cy=300, radius=258, step=360/choices.length, colors=['#f27c91','#c2b0e9','#b3cc91','#f3b080','#ee8695','#b9d49a','#eda1a8','#c7afe8','#f6a878','#c1b8e6','#efb9ce'];
+    const point=(r,a)=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)];
+    choices.forEach((item,i)=>{
+      const a0=-90+i*step, a1=a0+step, p0=point(radius,a0), p1=point(radius,a1), mid=a0+step/2;
+      const path=document.createElementNS(svgNS,'path'); path.setAttribute('d',`M ${cx} ${cy} L ${p0[0]} ${p0[1]} A ${radius} ${radius} 0 0 1 ${p1[0]} ${p1[1]} Z`); path.setAttribute('fill',colors[i]); path.setAttribute('stroke','#382740'); path.setAttribute('stroke-width','4'); wheel.append(path);
+      const [ix,iy]=point(196,mid); const circ=document.createElementNS(svgNS,'circle'); circ.setAttribute('cx',ix);circ.setAttribute('cy',iy);circ.setAttribute('r','25');circ.setAttribute('fill','#fff5e8');circ.setAttribute('stroke','#49364d');circ.setAttribute('stroke-width','3');wheel.append(circ);
+      const icon=document.createElementNS(svgNS,'text'); icon.setAttribute('x',ix);icon.setAttribute('y',iy+8);icon.setAttribute('text-anchor','middle');icon.setAttribute('font-size','24');icon.textContent=item.icon;wheel.append(icon);
+      const [tx,ty]=point(135,mid); const label=document.createElementNS(svgNS,'text'); label.setAttribute('x',tx);label.setAttribute('y',ty+5);label.setAttribute('text-anchor','middle');label.setAttribute('font-family','Vazirmatn,sans-serif');label.setAttribute('font-size','12');label.setAttribute('font-weight','700');label.setAttribute('fill','#35243e');label.textContent=item.label;wheel.append(label);
+    });
+    for(let i=0;i<40;i++){const a=i*Math.PI*2/40, x=300+276*Math.cos(a),y=300+276*Math.sin(a);const c=document.createElementNS(svgNS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',i%5===0?'4':'3');c.setAttribute('fill',i%5===0?'#fff2d9':'#cbbbd3');bulbs.append(c)}
+    const shoppingIndex=choices.findIndex(choice=>choice.label==='رفتن به خرید');
+    let rotation=(360-(shoppingIndex*step+step/2)%360)%360,busy=false;
+    wheel.style.transform=`rotate(${rotation}deg)`;
+    const result=document.querySelector('#result'), resultTitle=document.querySelector('#result-title');
+    function spin(){if(busy)return;busy=true;result.classList.remove('open');const index=shoppingIndex, extra=(5+Math.floor(Math.random()*3))*360, destination=(360-(index*step+step/2)%360)%360, offset=(destination-((rotation%360)+360)%360+360)%360;rotation+=extra+offset;wheel.style.transform=`rotate(${rotation}deg)`;setTimeout(()=>{resultTitle.textContent=`${choices[index].label} دوتایی!`;result.classList.add('open');busy=false},5300)}
+    document.querySelector('#wheel').addEventListener('click',spin);document.querySelector('#again').addEventListener('click',spin);
+    result.addEventListener('click',e=>{if(e.target===result)result.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')result.classList.remove('open')});
+    const share=document.querySelector('#share');
+    const siteLink=/^https?:$/.test(location.protocol)?`\n${location.href}`:'';
+    share.href=`https://t.me/Hamirasekh?text=${encodeURIComponent(`یه سورپرایز کوچولو دارم برات 💗 قرارمون اینه که باهم بریم خرید 🛍️${siteLink}`)}`;share.target='_blank';share.rel='noopener noreferrer';
+    const heartRain=document.querySelector('#heart-rain'), heartGlyphs=['💗','💖','💕','💞','✨'];
+    function dropHeart(){const heart=document.createElement('span');heart.className='falling-heart';heart.textContent=heartGlyphs[Math.floor(Math.random()*heartGlyphs.length)];heart.style.setProperty('--left',`${Math.random()*100}%`);heart.style.setProperty('--size',`${15+Math.random()*18}px`);heart.style.setProperty('--duration',`${5+Math.random()*4}s`);heart.style.setProperty('--drift',`${Math.random()*100-50}px`);heartRain.append(heart);heart.addEventListener('animationend',()=>heart.remove(),{once:true})}
+    for(let i=0;i<12;i++)setTimeout(dropHeart,i*170);setInterval(dropHeart,650);
+    share.addEventListener('click',()=>{for(let i=0;i<24;i++)setTimeout(dropHeart,i*45)});
+    if('serviceWorker' in navigator && location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  </script>
+</body>
+</html>
+
