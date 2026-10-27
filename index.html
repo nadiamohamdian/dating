@@ -181,7 +181,7 @@
       editorLabel.append(editor);editorList.append(editorLabel);
     });
     setupView.hidden=hasCustomLink;gameView.hidden=!hasCustomLink;
-    if(hasCustomLink){document.querySelector('#title').textContent=`امروز با ${partnerName} چی کار کنیم؟`;document.querySelector('.subtitle').textContent=isRandomPick?'این بار انتخاب رو می‌سپاریم به شانس! 🎲':`این بار روی «${choices[requestedChoice].label}» می‌ایسته 💗`}
+    if(hasCustomLink){document.querySelector('#title').textContent=`امروز با ${partnerName} چی کار کنیم؟`;document.querySelector('.subtitle').textContent='بچرخون ببین چی برامون افتاده! 💗'}
     const customForm=document.querySelector('#custom-form'), linkOutput=document.querySelector('#link-output'), customLink=document.querySelector('#custom-link'), linkNotice=document.querySelector('#link-notice'), sendLink=document.querySelector('#send-link');
     function telegramUsername(value){return value.trim().replace(/^(https?:\/\/)?(www\.)?t\.me\//i,'').replace(/^@/,'').split(/[/?#]/)[0]}
     function telegramDraft(username,message){return `https://t.me/${username}?text=${encodeURIComponent(message)}`}
@@ -192,8 +192,7 @@
       if(!/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(partnerUsername)||!/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(creatorUsername)){linkNotice.textContent='آیدی تلگرام هر دوتون رو درست وارد کن؛ مثل @username.';linkOutput.classList.add('visible');return}
       const itemTexts=choices.map((choice,index)=>choice.label.trim().slice(0,60)||defaultChoiceLabels[index]), link=new URL('https://nadiamohamdian.github.io/dating/');link.searchParams.set('partner',name);link.searchParams.set('choice',selected);link.searchParams.set('tg',creatorUsername);link.searchParams.set('items',JSON.stringify(itemTexts));
       customLink.value=link.href;
-      const pickText=selected==='random'?'این بار انتخاب رو می‌سپاریم به شانس 🎲':`انتخابمون: ${choices[Number(selected)].label} ${choices[Number(selected)].icon}`;
-      sendLink.href=telegramDraft(partnerUsername,`یه قرار مخصوص برات ساختم، ${name} 💗 ${pickText}\n${link.href}`);
+      sendLink.href=telegramDraft(partnerUsername,`یه سورپرایز کوچولو برات دارم، ${name} 💗 لینک رو باز کن و گردونه رو بچرخون:\n${link.href}`);
       linkNotice.textContent='';linkOutput.classList.add('visible');
     });
     document.querySelector('#copy-link').addEventListener('click',async()=>{
@@ -213,7 +212,7 @@
     });
     for(let i=0;i<40;i++){const a=i*Math.PI*2/40, x=300+276*Math.cos(a),y=300+276*Math.sin(a);const c=document.createElementNS(svgNS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',i%5===0?'4':'3');c.setAttribute('fill',i%5===0?'#fff2d9':'#cbbbd3');bulbs.append(c)}
     const shoppingIndex=choices.findIndex(choice=>choice.label==='رفتن به خرید'), selectedIndex=isRandomPick?Math.floor(Math.random()*choices.length):hasCustomLink?requestedChoice:shoppingIndex;
-    let lastSelectedIndex=selectedIndex, rotation=(360-(selectedIndex*step+step/2)%360+360)%360,busy=false;
+    let lastSelectedIndex=selectedIndex, rotation=0,busy=false;
     wheel.style.transform=`rotate(${rotation}deg)`;
     const result=document.querySelector('#result'), resultTitle=document.querySelector('#result-title');
     const again=document.querySelector('#again'), actions=again.parentElement, note=document.querySelector('.note'), chaseMessages=['خب بریمم پسسس','نکن عشقم','اینو نزن خب عههه','نکننن میگممم','حامییی عههه','مسخره نشو'];
