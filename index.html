@@ -90,7 +90,7 @@
     <section class="setup-card" aria-labelledby="setup-title">
       <span class="setup-kicker">✿ یه بازی کوچولوی دونفره ✿</span>
       <h1 id="setup-title">یه قرار مخصوص بساز 💗</h1>
-      <p class="setup-intro">مشخصات رو وارد کن تا لینک اختصاصی قرارمون آماده بشه.</p>
+      <p class="setup-intro">مشخصات و آیدی تلگرام هر دوتون رو وارد کن تا لینک اختصاصی آماده بشه.</p>
       <form id="custom-form" novalidate>
         <label class="field" for="partner-name">اسم پارتنرت
           <input id="partner-name" name="partner" type="text" maxlength="50" autocomplete="off" required />
@@ -107,7 +107,11 @@
         </details>
         <label class="field" for="partner-telegram">آیدی تلگرام پارتنرت
           <input id="partner-telegram" name="telegram" type="text" placeholder="مثلاً @username" autocomplete="off" required />
-          <span class="field-hint">یوزرنیم تلگرامش رو با یا بدون @ وارد کن.</span>
+          <span class="field-hint">برای فرستادن لینک اختصاصی به پارتنرت.</span>
+        </label>
+        <label class="field" for="creator-telegram">آیدی تلگرام خودت (طرف اول)
+          <input id="creator-telegram" name="creatorTelegram" type="text" placeholder="مثلاً @username" autocomplete="off" required />
+          <span class="field-hint">نتیجهٔ گردونه به این آیدی فرستاده می‌شه.</span>
         </label>
         <button class="btn setup-button" type="submit">ساخت لینک اختصاصی 💌</button>
       </form>
@@ -183,13 +187,13 @@
     function telegramDraft(username,message){return `https://t.me/${username}?text=${encodeURIComponent(message)}`}
     customForm.addEventListener('submit',event=>{
       event.preventDefault();
-      const name=document.querySelector('#partner-name').value.trim(), username=telegramUsername(document.querySelector('#partner-telegram').value), selected=choiceSelect.value;
+      const name=document.querySelector('#partner-name').value.trim(), partnerUsername=telegramUsername(document.querySelector('#partner-telegram').value), creatorUsername=telegramUsername(document.querySelector('#creator-telegram').value), selected=choiceSelect.value;
       if(!name||selected===''){linkNotice.textContent='اسم پارتنر و آیتم دلخواهت رو وارد کن.';linkOutput.classList.add('visible');return}
-      if(!/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(username)){linkNotice.textContent='آیدی تلگرام رو درست وارد کن؛ مثل @username.';linkOutput.classList.add('visible');return}
-      const itemTexts=choices.map((choice,index)=>choice.label.trim().slice(0,60)||defaultChoiceLabels[index]), link=new URL('https://nadiamohamdian.github.io/dating/');link.searchParams.set('partner',name);link.searchParams.set('choice',selected);link.searchParams.set('tg',username);link.searchParams.set('items',JSON.stringify(itemTexts));
+      if(!/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(partnerUsername)||!/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(creatorUsername)){linkNotice.textContent='آیدی تلگرام هر دوتون رو درست وارد کن؛ مثل @username.';linkOutput.classList.add('visible');return}
+      const itemTexts=choices.map((choice,index)=>choice.label.trim().slice(0,60)||defaultChoiceLabels[index]), link=new URL('https://nadiamohamdian.github.io/dating/');link.searchParams.set('partner',name);link.searchParams.set('choice',selected);link.searchParams.set('tg',creatorUsername);link.searchParams.set('items',JSON.stringify(itemTexts));
       customLink.value=link.href;
       const pickText=selected==='random'?'این بار انتخاب رو می‌سپاریم به شانس 🎲':`انتخابمون: ${choices[Number(selected)].label} ${choices[Number(selected)].icon}`;
-      sendLink.href=telegramDraft(username,`یه قرار مخصوص برات ساختم، ${name} 💗 ${pickText}\n${link.href}`);
+      sendLink.href=telegramDraft(partnerUsername,`یه قرار مخصوص برات ساختم، ${name} 💗 ${pickText}\n${link.href}`);
       linkNotice.textContent='';linkOutput.classList.add('visible');
     });
     document.querySelector('#copy-link').addEventListener('click',async()=>{
